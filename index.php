@@ -1,10 +1,3 @@
-<?php
-header("Access-Control-Allow-Headers: *");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header('Access-Control-Allow-Credentials: true');
-header("Access-Control-Allow-Origin: https://localhost:8080/api/v1/");
-header('Access-Control-Max-Age: 1');
-?>
 <!doctype html>
 <html>
 
