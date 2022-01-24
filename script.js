@@ -1,14 +1,22 @@
 let noteArea = null;
+let codeArea = null;
 let stompClient = null;
 let code = null;
 const uid = fourDigitNumber();
 
 window.onload = async function () {
     noteArea = document.getElementsByTagName("textarea")[0];
-    init();
-    connectToSocket();
+    codeArea = document.getElementById("noteCode");
+
+    await init();
     noteArea.oninput = function () {
         sendMessage();
+    }
+    codeArea.oninput = function () {
+        if(codeArea.value.length === 5) {
+            localStorage.setItem('code', codeArea.value)
+            init()
+        }
     }
 };
 
@@ -17,8 +25,13 @@ async function init() {
         await initNote();
     }
     code = retrieveCode();
-    document.getElementById("noteCode").value = code;
-    await getFromBackend();
+    codeArea.value = code;
+    if(!await getFromBackend()) {
+        await initNote();
+        code = retrieveCode();
+        codeArea.value = code;
+    }
+    connectToSocket();
 }
 
 function retrieveCode() {
@@ -37,10 +50,11 @@ async function getFromBackend() {
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         }
     });
-    const note = response.json()
+    const note = await response.json()
     if (note.content !== undefined) {
         noteArea.value = note.content;
     }
+    return response.ok
 }
 
 async function initNote() {
@@ -58,9 +72,10 @@ function connectToSocket() {
     const socket = new SockJS(getSocketBackendUrl() + '/note/websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function () {
-        stompClient.subscribe('/notes', function (messageOutput) {
+        stompClient.subscribe('/user/notes', function (messageOutput) {
             receiveMessage(JSON.parse(messageOutput.body));
-        });
+        },
+        {'code': code});
     });
 }
 

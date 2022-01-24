@@ -1,7 +1,9 @@
+const backendUrl = "https://achmielecki-notepad-backend.herokuapp.com"
+
 function getBackendUrl() {
-    return "http://localhost:8080/api/v1"
+    return backendUrl + "/api/v1"
 }
 
 function getSocketBackendUrl() {
-    return "http://localhost:8080"
+    return backendUrl
 }
